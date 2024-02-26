@@ -40,17 +40,21 @@ const commentCtrl = {
 
   // 댓글 추가
   insertComment: async (req, res) => {
-    const { notice_id, nickname, comment, created_date, created_time } =
-      req.body;
+    const { notice_id, nickname, comment } = req.body;
 
     const sql = `INSERT INTO notices_db.comments (notice_id, nickname, comment, created_date, created_time) VALUES (${connection.escape(
       notice_id
     )}, ${connection.escape(nickname)}, ${connection.escape(
       comment
-    )}, '${created_date}', '${created_time}');`;
+    )}, CURDATE(), CURTIME());`;
 
     connection.query(sql, (error, result) => {
-      if (error) throw error;
+      if (error) {
+        console.error("댓글 추가 중 오류 발생: ", error);
+        return res
+          .status(500)
+          .json({ message: "댓글을 추가하는 데 실패했습니다." });
+      }
       res.json({
         message: "댓글이 성공적으로 추가되었습니다.",
         commentId: result.insertId,
