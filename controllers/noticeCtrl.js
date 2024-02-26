@@ -22,19 +22,39 @@ const noticeCtrl = {
           notices: rows,
           totalNotices: totalCount,
           totalPages: Math.ceil(totalCount / limit),
-          currentPage: page
+          currentPage: page,
         });
       });
     });
   },
   insertNotice: async (req, res) => {
-    const { id, title, date_posted } = req.body;
-    const sql = `INSERT INTO notices_db.notices (id, title, date_posted) 
-                 VALUES ('${id}', '${title}', '${date_posted}');`;
+    // 여기서 content, likes, posted_time을 추가로 추출합니다.
+    const { id, title, date_posted, content, likes, posted_time } = req.body;
+
+    // 이제 SQL 쿼리에도 content, likes, posted_time 값을 포함합니다.
+    const sql = `INSERT INTO notices_db.notices (id, title, date_posted, content, likes, posted_time) 
+                 VALUES ('${id}', '${title}', '${date_posted}', '${content}', ${likes}, '${posted_time}');`;
 
     connection.query(sql, (error, rows) => {
       if (error) throw error;
       res.send(rows);
+    });
+  },
+  getNoticeDetail: async (req, res) => {
+    const { noticeId } = req.params; // URL에서 공지사항 ID를 추출
+    const sql = `SELECT * FROM notices_db.notices WHERE id = ${connection.escape(
+      noticeId
+    )};`;
+
+    connection.query(sql, (error, result) => {
+      if (error) {
+        return res.status(500).send("서버 오류가 발생했습니다.");
+      }
+      if (result.length > 0) {
+        return res.json(result[0]);
+      } else {
+        return res.status(404).send("해당 공지사항을 찾을 수 없습니다.");
+      }
     });
   },
 };

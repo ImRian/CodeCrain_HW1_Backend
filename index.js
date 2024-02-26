@@ -18,3 +18,4 @@ app.listen(port, () => {
 
 // 프론트에서
 app.use("/api/notices", require("./routes/noticeRouter"));
+app.use("/api/comments", require("./routes/commentRouter"));
