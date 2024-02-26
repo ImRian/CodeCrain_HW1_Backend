@@ -57,6 +57,23 @@ const noticeCtrl = {
       }
     });
   },
+
+  updateLikes: async (req, res) => {
+    const { noticeId } = req.params; // URL에서 공지사항 ID를 추출
+    const { increment } = req.body; // 요청 본문에서 'increment' 값을 추출 (true이면 증가, false이면 감소)
+
+    // '좋아요' 수를 증가시키거나 감소시키는 SQL 쿼리
+    const sql = `UPDATE notices_db.notices SET likes = likes ${
+      increment ? "+" : "-"
+    } 1 WHERE id = ${connection.escape(noticeId)};`;
+
+    connection.query(sql, (error, result) => {
+      if (error) {
+        return res.status(500).send("서버 오류가 발생했습니다.");
+      }
+      return res.status(200).send("좋아요 수가 업데이트되었습니다.");
+    });
+  },
 };
 
 module.exports = noticeCtrl;
